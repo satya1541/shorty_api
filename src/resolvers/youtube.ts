@@ -240,8 +240,35 @@ interface RawCandidate {
   title: string;
   channel: string;
   durationSec: number;
+  views: number;
   isVerifiedArtist: boolean;
   isVerified: boolean;
+}
+
+/**
+ * Extracts and parses the view count of a YouTube video from InnerTube metadata.
+ */
+function parseViewCount(vr: any): number {
+  const fullText = vr.viewCountText?.simpleText || '';
+  if (fullText) {
+    const num = parseInt(fullText.replace(/[^0-9]/g, ''), 10);
+    if (!isNaN(num)) return num;
+  }
+
+  const shortText = vr.shortViewCountText?.simpleText || '';
+  if (shortText) {
+    const match = shortText.match(/([\d.]+)\s*([KMBkmb])?/);
+    if (match) {
+      const val = parseFloat(match[1]);
+      const unit = (match[2] || '').toUpperCase();
+      if (unit === 'B') return Math.round(val * 1_000_000_000);
+      if (unit === 'M') return Math.round(val * 1_000_000);
+      if (unit === 'K') return Math.round(val * 1_000);
+      return Math.round(val);
+    }
+  }
+
+  return 0;
 }
 
 export async function resolveYouTube(
@@ -320,11 +347,15 @@ export async function resolveYouTube(
           )
         );
 
+        // Extract view count for popularity & authenticity verification
+        const views = parseViewCount(vr);
+
         candidates.push({
           videoId: vr.videoId,
           title: rawTitle,
           channel: channelName,
           durationSec,
+          views,
           isVerifiedArtist,
           isVerified,
         });
@@ -406,7 +437,24 @@ export async function resolveYouTube(
         score += 0.15;
       }
 
-      // 4. Heavy penalties for fan re-uploads, slowed, covers, reaction videos
+      // 4. View Count Popularity & Authenticity Check
+      // Official music videos and chart-toppers have millions of views.
+      // Low-view UGC, lyric edits, and parody re-uploads are heavily penalized.
+      if (cand.views >= 50_000_000) {
+        score += 0.30; // Blockbuster official release (50M+ views)
+      } else if (cand.views >= 10_000_000) {
+        score += 0.22; // Major hit (10M+ views)
+      } else if (cand.views >= 1_000_000) {
+        score += 0.15; // 1M+ views
+      } else if (cand.views >= 100_000) {
+        score += 0.08;
+      } else if (cand.views > 0 && cand.views < 10_000) {
+        score -= 0.30; // Unlikely to be a trending leaderboard song (sub-10k views)
+      } else if (cand.views > 0 && cand.views < 1_000) {
+        score -= 0.50; // Micro fan re-upload / spam (<1k views)
+      }
+
+      // 5. Heavy penalties for fan re-uploads, slowed, covers, reaction videos
       if (candTitleLow.includes('slowed') || candTitleLow.includes('reverb')) score -= 0.70;
       if (candTitleLow.includes('cover') || candTitleLow.includes('parody') || candTitleLow.includes('fan made')) score -= 0.60;
       if (candTitleLow.includes('karaoke') || candTitleLow.includes('instrumental') || candTitleLow.includes('bgm') || candTitleLow.includes('ringtone')) score -= 0.70;
@@ -438,6 +486,7 @@ export async function resolveYouTube(
           streamUrl: `https://www.youtube.com/watch?v=${cand.videoId}`,
           quality: 'Opus 160kbps',
           score: Math.min(1.0, Math.max(0, score)),
+          views: cand.views,
         };
       }
     }

@@ -45,6 +45,7 @@ export interface YouTubeMatch {
   streamUrl: string;
   quality: 'Opus 160kbps' | 'M4A';
   score: number;                   // Match confidence 0.0 - 1.0
+  views?: number;                  // View count of the video
 }
 
 export interface ResolvedChartTrack {
