@@ -1,0 +1,27 @@
+{
+  "name": "shorty-api",
+  "version": "1.0.0",
+  "description": "High-precision Chart Extractor & Dual-Platform Stream Matcher (JioSaavn Lossless + YouTube Opus)",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "npx tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "extract": "npx tsx src/scripts/runExtraction.ts"
+  },
+  "keywords": ["music", "charts", "jiosaavn", "youtube", "soundcharts", "spotify"],
+  "author": "Shorty Audio",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
