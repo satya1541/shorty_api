@@ -18,12 +18,6 @@ const chartService = new ChartService(CACHE_DIR);
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// Request logger
-app.use((req, _res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
-
 // Health check endpoint
 app.get('/health', (_req, res) => {
   res.json({
