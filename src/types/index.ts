@@ -1,5 +1,5 @@
 export type PlatformType = 'youtube' | 'spotify' | 'gaana' | 'apple_music' | 'billboard';
-export type ProviderType = 'soundcharts' | 'kworb' | 'custom';
+export type ProviderType = 'soundcharts' | 'kworb' | 'custom' | 'apple_music';
 
 export interface ChartSourceConfig {
   id: string;                      // Unique ID (e.g., 'youtube-india', 'spotify-india')

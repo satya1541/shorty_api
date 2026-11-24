@@ -1,9 +1,11 @@
 import { ChartExtractor } from './base.js';
 import { SoundchartsExtractor } from './soundcharts.js';
+import { AppleMusicExtractor } from './appleMusic.js';
 import { ChartSourceConfig } from '../types/index.js';
 
 const extractors: ChartExtractor[] = [
   new SoundchartsExtractor(),
+  new AppleMusicExtractor(),
 ];
 
 export function registerExtractor(extractor: ChartExtractor): void {
