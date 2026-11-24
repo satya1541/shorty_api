@@ -36,20 +36,29 @@ export function createChartRouter(chartService: ChartService): Router {
    * GET /api/charts/:id
    * Returns full resolved tracks for a specific chart (e.g., 'spotify-india', 'youtube-india')
    */
-  router.get('/:id', (req: Request, res: Response) => {
+  router.get('/:id', async (req: Request, res: Response) => {
     const id = String(req.params.id);
     const chart = chartService.getChart(id);
 
-    if (!chart) {
+    if (!chart || !chart.tracks || chart.tracks.length === 0) {
       // Check if it's a known source that hasn't been extracted yet
       const summaries = chartService.getSummaries();
       const exists = summaries.find((s) => s.id === id);
 
       if (exists) {
-        return res.status(202).json({
-          success: false,
-          message: `Chart "${id}" exists but has not been resolved yet. Trigger POST /api/charts/${id}/refresh to resolve now.`,
-        });
+        try {
+          console.log(`[ChartRouter] Auto-resolving chart "${id}" on demand...`);
+          const refreshed = await chartService.refreshChart(id);
+          return res.json({
+            success: true,
+            chart: refreshed,
+          });
+        } catch (err: any) {
+          return res.status(500).json({
+            success: false,
+            error: `Failed to auto-resolve ${id}: ${err.message}`,
+          });
+        }
       }
 
       return res.status(404).json({

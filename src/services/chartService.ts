@@ -169,11 +169,20 @@ export class ChartService {
   }
 
   /**
-   * Start recurring background refresh timer
+   * Start recurring background refresh timer and pre-warm unpopulated charts
    */
   startScheduler(intervalHours: number = 12): void {
     const ms = intervalHours * 60 * 60 * 1000;
     console.log(`[ChartService] Scheduler initialized: auto-refreshes every ${intervalHours} hours.`);
+
+    // Pre-warm any charts not yet saved on disk
+    if (this.cache.size < CHART_SOURCES.length) {
+      console.log(`[ChartService] Pre-warming ${CHART_SOURCES.length - this.cache.size} unpopulated charts in background...`);
+      setTimeout(() => {
+        this.refreshAll().catch((err) => console.error('[ChartService] Pre-warm error:', err));
+      }, 3000);
+    }
+
     setInterval(() => {
       console.log(`[ChartService] Running scheduled background chart refresh...`);
       this.refreshAll().catch((err) => console.error('[ChartService] Scheduler refresh error:', err));
