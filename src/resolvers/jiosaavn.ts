@@ -23,7 +23,7 @@ export async function resolveJioSaavn(
 
     if (!res.ok) return null;
 
-    const data = await res.json();
+    const data = (await res.json()) as any;
     const results = data?.results || [];
     if (!Array.isArray(results) || results.length === 0) return null;
 

@@ -37,7 +37,7 @@ export function createChartRouter(chartService: ChartService): Router {
    * Returns full resolved tracks for a specific chart (e.g., 'spotify-india', 'youtube-india')
    */
   router.get('/:id', (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = String(req.params.id);
     const chart = chartService.getChart(id);
 
     if (!chart) {
@@ -69,7 +69,7 @@ export function createChartRouter(chartService: ChartService): Router {
    * Triggers an immediate refresh of a single chart
    */
   router.post('/:id/refresh', async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = String(req.params.id);
 
     try {
       // Start refresh asynchronously or respond when done

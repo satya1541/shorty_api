@@ -35,7 +35,7 @@ export async function resolveYouTube(
 
     if (!res.ok) return null;
 
-    const data = await res.json();
+    const data = (await res.json()) as any;
     const candidates: Array<{ videoId: string; title: string; channel: string; durationSec: number }> = [];
 
     function scanNodes(node: any) {
