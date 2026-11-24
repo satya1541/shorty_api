@@ -13,7 +13,8 @@ export async function matchAndResolveTrack(
   ]);
 
   // Determine best title & artist display
-  const title = saavnMatch?.name || ytMatch?.name || item.title;
+  // Prioritize clean metadata from JioSaavn or original chart item; avoid raw YouTube video title noise
+  const title = saavnMatch?.name || item.title;
   const artist = saavnMatch?.artist || item.artist;
   const album = saavnMatch?.album || (platform ? `${platform.toUpperCase()} Top Chart` : 'Top Chart');
 
