@@ -1,8 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { ChartService } from './services/chartService.js';
 import { createChartRouter } from './routes/charts.js';
+import { createAppVersionRouter } from './routes/appVersion.js';
 
 dotenv.config();
 
@@ -31,6 +34,22 @@ app.get('/health', (_req, res) => {
 
 // API Routes
 app.use('/api/charts', createChartRouter(chartService));
+app.use('/api/app-version', createAppVersionRouter(CACHE_DIR));
+
+const releasesDir = path.resolve(CACHE_DIR, 'releases');
+if (!fs.existsSync(releasesDir)) {
+  fs.mkdirSync(releasesDir, { recursive: true });
+}
+app.use(
+  '/downloads',
+  express.static(releasesDir, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.apk')) {
+        res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+      }
+    },
+  })
+);
 
 // Root welcome
 app.get('/', (_req, res) => {
@@ -39,6 +58,8 @@ app.get('/', (_req, res) => {
     version: '1.0.0',
     documentation: {
       health: 'GET /health',
+      appVersion: 'GET /api/app-version',
+      apkDownloads: 'GET /downloads/<filename>.apk',
       listCharts: 'GET /api/charts',
       getSpecificChart: 'GET /api/charts/:id (e.g. /api/charts/spotify-india, /api/charts/youtube-india, /api/charts/gaana-worldwide)',
       getAllCharts: 'GET /api/charts/all',
