@@ -9,9 +9,10 @@
     "forceUpdate": false,
     "isActive": false,
     "releaseNotes": [
+      "New bird app icon, splash screen & animated video login background",
       "Charts screen now shows official Apple Music, Spotify & Gaana logos",
       "Fixed lock-screen playback stops with native Android wake lock & audio focus upgrades",
-      "Added automatic in-app update notifications for future native APK builds"
+      "Improved Gorse ML queue seeding & automatic native APK update alerts"
     ],
     "publishedAt": "2026-11-27T00:00:00.000Z"
   }
